@@ -1,0 +1,202 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+    // Further reading:
+    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    url      = env("DATABASE_URL")
+}
+
+
+// Necessary for Next auth
+model Account {
+    id                       String  @id @default(cuid())
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String? // @db.Text
+    access_token             String? // @db.Text
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String? // @db.Text
+    session_state            String?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token_expires_in Int?
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+    groups        Group[]
+    
+    // New relations for group invitation system
+    sentInvites     GroupInvite[] @relation("SentInvites")
+    receivedInvites GroupInvite[] @relation("ReceivedInvites")
+    sharedGroups    Group[]       @relation("GroupMembers")
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+model Group {
+    id        String   @id @default(cuid())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    createdBy   User     @relation(fields: [createdById], references: [id])
+    createdById String
+    people      Person[]
+    expenses    Expense[]
+    settlements Settlement[]
+    
+    // New relations for group invitation system
+    members User[]       @relation("GroupMembers")
+    invites GroupInvite[]
+
+    @@index([createdById])
+}
+
+// New model for group invitations
+model GroupInvite {
+    id              String   @id @default(cuid())
+    groupId         String
+    invitedByUserId String
+    inviteToken     String   @unique
+    status          InviteStatus @default(PENDING)
+    expiresAt       DateTime
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    maxUses         Int      @default(10)  // Maximum number of times this invite can be used
+    remainingUses   Int      @default(10)  // Number of uses remaining
+
+    // Relations
+    group           Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    invitedBy       User     @relation("SentInvites", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+    
+    // Track users who used this invite in a many-to-many relationship
+    usedBy          User?    @relation("ReceivedInvites", fields: [invitedUserId], references: [id], onDelete: SetNull)
+    invitedUserId   String?
+
+    @@index([groupId])
+    @@index([inviteToken])
+    @@index([invitedByUserId])
+    @@index([invitedUserId])
+}
+
+// Enum for invite status
+enum InviteStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+    EXPIRED
+    USED
+}
+
+model Person {
+    id        String   @id @default(cuid())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    groupId String
+
+    paidExpenses    Expense[]    @relation("PaidBy")
+    shares          Share[]
+    fromSettlements Settlement[] @relation("SettlementFrom")
+    toSettlements   Settlement[] @relation("SettlementTo")
+
+    @@index([groupId])
+}
+
+model Expense {
+    id          String   @id @default(cuid())
+    description String
+    amount      Float
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    settledAmount Float   @default(0)   // derived but cached for easy UI
+
+    group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    groupId String
+
+    paidBy   Person @relation("PaidBy", fields: [paidById], references: [id])
+    paidById String
+
+    shares     Share[]
+    settlements Settlement[]
+
+    @@index([groupId])
+    @@index([paidById])
+    @@index([groupId, settledAmount])
+}
+
+model Share {
+    id        String   @id @default(cuid())
+    amount    Float
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+    expenseId String
+
+    person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+    personId String
+
+    @@unique([expenseId, personId])
+    @@index([expenseId])
+    @@index([personId])
+}
+
+model Settlement {
+    id        String   @id @default(cuid())
+    amount    Float
+    settled   Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    groupId   String
+
+    from      Person   @relation("SettlementFrom", fields: [fromId], references: [id])
+    fromId    String
+    to        Person   @relation("SettlementTo",   fields: [toId],   references: [id])
+    toId      String
+
+    expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+    expenseId String
+
+    @@index([groupId])
+    @@index([fromId])
+    @@index([toId])
+}

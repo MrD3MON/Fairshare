@@ -1,0 +1,26 @@
+{
+  "name": "equishare",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "check": "turbo run check",
+    "dev": "turbo run dev --filter=@equishare/web",
+    "dev:web": "npm run dev --workspace @equishare/web",
+    "lint": "turbo run lint",
+    "lint:web": "npm run lint --workspace @equishare/web",
+    "typecheck": "turbo run typecheck",
+    "typecheck:web": "npm run typecheck --workspace @equishare/web",
+    "db:generate": "npm run db:generate --workspace @equishare/web",
+    "db:migrate": "npm run db:migrate --workspace @equishare/web",
+    "db:push": "npm run db:push --workspace @equishare/web",
+    "db:studio": "npm run db:studio --workspace @equishare/web"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  },
+  "packageManager": "npm@11.3.0"
+}

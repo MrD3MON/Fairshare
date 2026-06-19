@@ -1,0 +1,207 @@
+"use client";
+
+import { motion } from "framer-motion";
+import {
+  Receipt,
+  TrendingUp,
+  CheckCircle2,
+  AlertCircle,
+  UserPlus,
+  Plus,
+  Users,
+  Share2,
+} from "lucide-react";
+import { Skeleton } from "~/components/ui/skeleton";
+import { Button } from "~/components/ui/button";
+import { InviteDialog } from "~/app/_components/features/group-management/InviteDialog";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import type { Group } from "./utils";
+import { GroupDataExport } from "./GroupDataExport";
+
+interface GroupHeaderProps {
+  group: Group;
+  totalExpenses: number;
+  isLoadingBalances: boolean;
+  isAllSettled: boolean;
+  pendingSettlements: number;
+  isOwner: boolean;
+  hasUnsettledExpenses?: boolean;
+  onExpenseCreated?: () => Promise<void>;
+  setShowMembersDialog?: (show: boolean) => void;
+}
+
+export function GroupHeader({
+  group,
+  totalExpenses,
+  isLoadingBalances,
+  isAllSettled,
+  pendingSettlements,
+  isOwner,
+  hasUnsettledExpenses = true,
+  onExpenseCreated,
+  setShowMembersDialog,
+}: GroupHeaderProps) {
+  // If there are no unsettled expenses, show the all settled message
+  const showAllSettled = isAllSettled || !hasUnsettledExpenses;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center">
+            <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl dark:text-gray-100">
+              {group.name || "Group Expenses"}
+            </h1>
+
+            <div className="ml-2 flex items-center">
+              <GroupDataExport group={group} />
+            </div>
+          </div>
+
+          {!isOwner && (
+            <Badge
+              variant="outline"
+              className="border-border text-muted-foreground ml-2 bg-transparent"
+            >
+              <Share2 className="mr-1 h-3 w-3" />
+              Shared
+            </Badge>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                <span>Members</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Group Members</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+
+              {/* Owner */}
+              <DropdownMenuItem className="flex items-center gap-2 py-2">
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={group.createdBy.image || undefined} />
+                  <AvatarFallback className="bg-blue-100 text-xs text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                    {(group.createdBy.name || "U").charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-1 items-center justify-between">
+                  <span className="text-sm">{group.createdBy.name}</span>
+                  <Badge
+                    variant="outline"
+                    className="ml-2 h-5 border-green-200 bg-green-50 text-xs text-green-700 dark:border-green-800 dark:bg-green-900/50 dark:text-green-400"
+                  >
+                    Owner
+                  </Badge>
+                </div>
+              </DropdownMenuItem>
+
+              {/* Members */}
+              {group.members &&
+                group.members.length > 0 &&
+                group.members.map((member) => (
+                  <DropdownMenuItem
+                    key={member.id}
+                    className="flex items-center gap-2 py-2"
+                  >
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={member.image || undefined} />
+                      <AvatarFallback className="bg-blue-100 text-xs text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                        {(member.name || "U").charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">{member.name}</span>
+                  </DropdownMenuItem>
+                ))}
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowMembersDialog?.(true)}>
+                <span className="text-blue-600 dark:text-blue-400">
+                  View all members
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* <ExpenseForm
+            groupId={group.id}
+            people={group.people}
+            onSuccess={onExpenseCreated}
+            trigger={
+              <Button
+                size="sm"
+                className="transform bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl dark:from-blue-700 dark:to-indigo-700 dark:hover:from-blue-800 dark:hover:to-indigo-800"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Expense
+              </Button>
+            }
+          /> */}
+        </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="mt-6 flex flex-wrap justify-center gap-4 sm:gap-6">
+        <div className="border-border bg-background flex items-center gap-2 rounded-full border px-4 py-2">
+          <TrendingUp className="text-muted-foreground h-5 w-5" />
+          <span className="text-foreground font-semibold">
+            Total: ₹{totalExpenses.toFixed(2)}
+          </span>
+        </div>
+        <div className="border-border bg-background flex items-center gap-2 rounded-full border px-4 py-2">
+          <Receipt className="text-muted-foreground h-5 w-5" />
+          <span className="text-foreground font-semibold">
+            {group.expenses.length} Expenses
+          </span>
+        </div>
+        <div className="border-border bg-background flex items-center gap-2 rounded-full border px-4 py-2">
+          {isLoadingBalances ? (
+            <Skeleton className="h-5 w-24" />
+          ) : showAllSettled ? (
+            <>
+              <CheckCircle2 className="text-foreground h-5 w-5" />
+              <span className="text-foreground font-semibold">
+                All Settled!
+              </span>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="text-foreground h-5 w-5" />
+              <span className="text-foreground font-semibold">
+                {pendingSettlements} Pending
+              </span>
+            </>
+          )}
+        </div>
+
+        {isOwner && (
+          <InviteDialog groupId={group.id}>
+            <div className="border-border bg-background hover:bg-muted/40 flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 transition-colors">
+              <UserPlus className="text-foreground h-5 w-5" />
+              <span className="text-foreground font-semibold">
+                Invite Members
+              </span>
+            </div>
+          </InviteDialog>
+        )}
+      </div>
+    </div>
+  );
+}
