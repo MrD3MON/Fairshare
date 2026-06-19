@@ -37,7 +37,7 @@ export function Header() {
           className="flex items-center space-x-2 transition-opacity hover:opacity-80"
         >
           <Image src="/logo.png" alt="Fairshare" width={32} height={32} className="rounded-md" />
-          <span className="text-xl font-bold tracking-tight">Fairshare</span>
+          <span className="text-xl font-bold tracking-tight">FairShare</span>
         </Link>
 
         <nav className="flex items-center gap-6">
