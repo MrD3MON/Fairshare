@@ -35,10 +35,10 @@ export default function SignInPage() {
             {/* Logo/Brand */}
             <div className="text-center">
               <div className="mx-auto flex size-12 items-center justify-center rounded-lg bg-muted">
-                <Image src="/file.svg" alt="EquiShare" width={40} height={40} />
+                <Image src="/logo.png" alt="Fairshare" width={40} height={40} className="rounded-lg" />
               </div>
               <h1 className="mt-4 text-2xl font-semibold tracking-tight">
-                Welcome to EquiShare
+                Welcome to Fairshare
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Sign in to continue
@@ -107,7 +107,7 @@ export default function SignInPage() {
             {/* Footer */}
             <div className="pt-2 text-center">
               <p className="text-xs text-muted-foreground">
-                By continuing, you acknowledge and accept the EquiShare user
+                By continuing, you acknowledge and accept the Fairshare user
                 agreement
               </p>
             </div>

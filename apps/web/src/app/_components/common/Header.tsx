@@ -36,8 +36,8 @@ export function Header() {
           href="/"
           className="flex items-center space-x-2 transition-opacity hover:opacity-80"
         >
-          <Image src="/file.svg" alt="EquiShare" width={32} height={32} />
-          <span className="text-xl font-bold tracking-tight">EquiShare</span>
+          <Image src="/logo.png" alt="Fairshare" width={32} height={32} className="rounded-md" />
+          <span className="text-xl font-bold tracking-tight">Fairshare</span>
         </Link>
 
         <nav className="flex items-center gap-6">

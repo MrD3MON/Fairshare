@@ -1,5 +1,5 @@
 {
-  "name": "equishare",
+  "name": "fairshare",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -8,16 +8,16 @@
   "scripts": {
     "build": "turbo run build",
     "check": "turbo run check",
-    "dev": "turbo run dev --filter=@equishare/web",
-    "dev:web": "npm run dev --workspace @equishare/web",
+    "dev": "turbo run dev --filter=@fairshare/web",
+    "dev:web": "npm run dev --workspace @fairshare/web",
     "lint": "turbo run lint",
-    "lint:web": "npm run lint --workspace @equishare/web",
+    "lint:web": "npm run lint --workspace @fairshare/web",
     "typecheck": "turbo run typecheck",
-    "typecheck:web": "npm run typecheck --workspace @equishare/web",
-    "db:generate": "npm run db:generate --workspace @equishare/web",
-    "db:migrate": "npm run db:migrate --workspace @equishare/web",
-    "db:push": "npm run db:push --workspace @equishare/web",
-    "db:studio": "npm run db:studio --workspace @equishare/web"
+    "typecheck:web": "npm run typecheck --workspace @fairshare/web",
+    "db:generate": "npm run db:generate --workspace @fairshare/web",
+    "db:migrate": "npm run db:migrate --workspace @fairshare/web",
+    "db:push": "npm run db:push --workspace @fairshare/web",
+    "db:studio": "npm run db:studio --workspace @fairshare/web"
   },
   "devDependencies": {
     "turbo": "^2.5.0"
