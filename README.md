@@ -1,5 +1,7 @@
 # Fairshare - Smart Expense Splitting
 
+![Fairshare ss](/public/demo.png)
+
 Fairshare is a modern expense splitting application built with the T3 Stack. It helps groups of people track shared expenses and balances, making it easy to split bills and settle debts.
 
 ## Monorepo Layout
