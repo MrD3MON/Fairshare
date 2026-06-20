@@ -72,7 +72,7 @@ export default function LandingPage() {
       icon: Sparkles,
       title: "Always free, no ads",
       description:
-        "Fairshare is built to be fair — no paywalls, no distractions, just clarity.",
+        "FairShare is built to be fair — no paywalls, no distractions, just clarity.",
       area: "md:[grid-area:3/7/4/13] xl:[grid-area:2/5/3/13]",
     },
   ];
@@ -107,7 +107,7 @@ export default function LandingPage() {
                 className="text-3xl md:text-5xl"
               />
               <p className="mx-auto max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Fairshare keeps every shared bill transparent and fair — from
+                FairShare keeps every shared bill transparent and fair — from
                 weekend getaways to monthly household costs.
               </p>
               {/* DiaTextReveal in its own fixed-height line — no reflow */}
@@ -216,7 +216,7 @@ export default function LandingPage() {
             Ready to get started?
           </h2>
           <p className="max-w-md text-muted-foreground">
-            Create a group, add your first expense, and let Fairshare handle the
+            Create a group, add your first expense, and let FairShare handle the
             rest.
           </p>
           <Button size="lg" onClick={() => router.push("/signin")}>
