@@ -66,25 +66,6 @@ export function AnimatedGridPattern({
     [getPos]
   )
 
-  const updateSquarePosition = useCallback(
-    (squareId: number) => {
-      setSquares((currentSquares) => {
-        const current = currentSquares[squareId]
-        if (!current || current.id !== squareId) return currentSquares
-
-        const nextSquares = currentSquares.slice()
-        nextSquares[squareId] = {
-          ...current,
-          pos: getPos(),
-          iteration: current.iteration + 1,
-        }
-
-        return nextSquares
-      })
-    },
-    [getPos]
-  )
-
   useEffect(() => {
     if (dimensions.width && dimensions.height) {
       setSquares(generateSquares(numSquares))
@@ -143,19 +124,18 @@ export function AnimatedGridPattern({
       </defs>
       <rect width="100%" height="100%" fill={`url(#${id})`} />
       <svg x={x} y={y} className="overflow-visible">
-        {squares.map(({ pos: [squareX, squareY], id, iteration }, index) => (
+        {squares.map(({ pos: [squareX, squareY], id }, index) => (
           <motion.rect
             initial={{ opacity: 0 }}
-            animate={{ opacity: maxOpacity }}
+            animate={{ opacity: [0, maxOpacity, 0] }}
             transition={{
-              duration,
-              repeat: 1,
-              delay: index * 0.1,
-              repeatType: "reverse",
+              duration: duration * 2,
+              repeat: Infinity,
+              delay: index * 0.15,
+              ease: "easeInOut",
               repeatDelay,
             }}
-            onAnimationComplete={() => updateSquarePosition(id)}
-            key={`${id}-${iteration}`}
+            key={id}
             width={width - 1}
             height={height - 1}
             x={squareX * width + 1}

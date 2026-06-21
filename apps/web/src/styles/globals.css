@@ -136,7 +136,32 @@
   }
 }
 
-::view-transition-old(root), ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.theme-transitioning::view-transition-old(root) {
+  animation: fade-out var(--theme-vt-duration, 250ms) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  mix-blend-mode: normal;
+  pointer-events: none;
+}
+
+.theme-transitioning::view-transition-new(root) {
+  animation: fade-in var(--theme-vt-duration, 250ms) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  mix-blend-mode: normal;
+  pointer-events: none;
 }

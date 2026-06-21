@@ -32,6 +32,19 @@ const GlowingEffect = memo(
     const containerRef = useRef<HTMLDivElement>(null);
     const lastPosition = useRef({ x: 0, y: 0 });
     const animationFrameRef = useRef<number>(0);
+    const elementRectRef = useRef<{ left: number; top: number; width: number; height: number } | null>(null);
+
+    const updateRect = useCallback(() => {
+      const element = containerRef.current;
+      if (!element) return;
+      const rect = element.getBoundingClientRect();
+      elementRectRef.current = {
+        left: rect.left + window.scrollX,
+        top: rect.top + window.scrollY,
+        width: rect.width,
+        height: rect.height,
+      };
+    }, []);
 
     const handleMove = useCallback(
       (e?: MouseEvent | { x: number; y: number }) => {
@@ -45,7 +58,22 @@ const GlowingEffect = memo(
           const element = containerRef.current;
           if (!element) return;
 
-          const { left, top, width, height } = element.getBoundingClientRect();
+          let rect = elementRectRef.current;
+          if (!rect) {
+            const clientRect = element.getBoundingClientRect();
+            rect = {
+              left: clientRect.left + window.scrollX,
+              top: clientRect.top + window.scrollY,
+              width: clientRect.width,
+              height: clientRect.height,
+            };
+            elementRectRef.current = rect;
+          }
+
+          const left = rect.left - window.scrollX;
+          const top = rect.top - window.scrollY;
+          const { width, height } = rect;
+
           const mouseX = e?.x ?? lastPosition.current.x;
           const mouseY = e?.y ?? lastPosition.current.y;
 
@@ -101,22 +129,33 @@ const GlowingEffect = memo(
     useEffect(() => {
       if (disabled) return;
 
-      const handleScroll = () => handleMove();
+      const handleScroll = () => {
+        updateRect();
+        handleMove();
+      };
+      const handleResize = () => {
+        updateRect();
+      };
       const handlePointerMove = (e: PointerEvent) => handleMove(e);
 
       window.addEventListener("scroll", handleScroll, { passive: true });
+      window.addEventListener("resize", handleResize, { passive: true });
       document.body.addEventListener("pointermove", handlePointerMove, {
         passive: true,
       });
+
+      // Initial rect call
+      updateRect();
 
       return () => {
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
         window.removeEventListener("scroll", handleScroll);
+        window.removeEventListener("resize", handleResize);
         document.body.removeEventListener("pointermove", handlePointerMove);
       };
-    }, [handleMove, disabled]);
+    }, [handleMove, updateRect, disabled]);
 
     return (
       <>

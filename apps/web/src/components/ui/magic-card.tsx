@@ -123,9 +123,23 @@ export function MagicCard(props: MagicCardProps) {
     [mouseX, mouseY, orbVisible]
   )
 
+  const cardRectRef = useRef<DOMRect | null>(null)
+
+  const handlePointerEnter = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      cardRectRef.current = e.currentTarget.getBoundingClientRect()
+      reset("enter")
+    },
+    [reset]
+  )
+
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect()
+      let rect = cardRectRef.current
+      if (!rect) {
+        rect = e.currentTarget.getBoundingClientRect()
+        cardRectRef.current = rect
+      }
       mouseX.set(e.clientX - rect.left)
       mouseY.set(e.clientY - rect.top)
     },
@@ -164,7 +178,7 @@ export function MagicCard(props: MagicCardProps) {
       )}
       onPointerMove={handlePointerMove}
       onPointerLeave={() => reset("leave")}
-      onPointerEnter={() => reset("enter")}
+      onPointerEnter={handlePointerEnter}
       style={{
         background: useMotionTemplate`
           linear-gradient(var(--color-background) 0 0) padding-box,

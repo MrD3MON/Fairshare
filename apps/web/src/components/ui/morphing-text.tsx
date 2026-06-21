@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
 import { useCallback, useEffect, useRef } from "react"
+import { useInView } from "framer-motion"
 
 import { cn } from "~/lib/utils"
 
@@ -15,6 +16,8 @@ const useMorphingText = (texts: string[]) => {
 
   const text1Ref = useRef<HTMLSpanElement>(null)
   const text2Ref = useRef<HTMLSpanElement>(null)
+
+  const isInView = useInView(text1Ref, { amount: 0.1 })
 
   const setStyles = useCallback(
     (fraction: number) => {
@@ -67,6 +70,8 @@ const useMorphingText = (texts: string[]) => {
   }, [])
 
   useEffect(() => {
+    if (!isInView) return
+
     let animationFrameId: number
 
     const animate = () => {
@@ -86,7 +91,7 @@ const useMorphingText = (texts: string[]) => {
     return () => {
       cancelAnimationFrame(animationFrameId)
     }
-  }, [doMorph, doCooldown])
+  }, [doMorph, doCooldown, isInView])
 
   return { text1Ref, text2Ref }
 }
